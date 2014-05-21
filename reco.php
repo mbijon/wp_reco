@@ -185,7 +185,7 @@ class WP_Reco {
 		
 		
 		$recos_args = array(
-			'posts_per_page' => 5,
+			'posts_per_page' => 6,
 			'orderby'=> 'rand',
 			'post_status' => 'publish',
 		);
@@ -195,7 +195,7 @@ class WP_Reco {
 		
 		// Include admin page/HTML output from separate file
 		require_once( dirname( __file__ ) . '/views/reco-list-template.php' );
-		if ( $after_content ) {
+		if ( ! empty( $after_content ) ) {
 			$content .= $after_content;
 		}
 		
