@@ -69,6 +69,13 @@ class WP_Reco {
 	 */
 	const RECO_TRANSIENT_TIME = '86400';
 	
+	/**
+	 * Posts per-page to show
+	 *
+	 * ### TO-DO: Add plugin setting and allow to be lower
+	 */
+	const RECO_MAX_ITEMS = 6;
+	
 	
 	
 	/**
@@ -184,14 +191,7 @@ class WP_Reco {
 		// ###
 		
 		
-		$recos_args = array(
-			'posts_per_page' => 6,
-			'orderby'=> 'rand',
-			'post_status' => 'publish',
-		);
-		
-		// Generate Recommendations
-		$recos = get_posts( $recos_args );
+		$recos = $this->_rateByCategory( $post_id );
 		
 		// Include admin page/HTML output from separate file
 		require_once( dirname( __file__ ) . '/views/reco-list-template.php' );
@@ -199,10 +199,48 @@ class WP_Reco {
 			$content .= $after_content;
 		}
 		
+		return $content;
+		
+	}
+	
+	
+	private function _rateByCategory( $post_id ) {
+		
+		$cat = get_the_category( $post_id );
+		
+		if ( ! $cat ) { return; }
+		
+		$args = array(
+			'posts_per_page' => self::RECO_MAX_ITEMS,
+			'orderby'=> 'rand',
+			'post_status' => 'publish',
+			'post__not_in' => array( $post_id ),
+			'cat' => $cat[0]->term_id
+		);
+		
 		// Cleanup the custom query
 		wp_reset_postdata();
 		
-		return $content;
+		// Generate Recommendations
+		return get_posts( $args );
+		
+	}
+	
+	
+	private function _rateRandom( $post_id = null ) {
+		
+		$args = array(
+			'posts_per_page' => self::RECO_MAX_ITEMS,
+			'orderby'=> 'rand',
+			'post_status' => 'publish',
+			'post__not_in' => array( $post_id )
+		);
+		
+		// Cleanup the custom query
+		wp_reset_postdata();
+		
+		// Generate Recommendations
+		return get_posts( $args );
 		
 	}
 	
